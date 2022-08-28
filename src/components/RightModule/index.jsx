@@ -1,13 +1,12 @@
 /*
  * @Date: 2022-04-17 18:27:09
  * @LastEditors: JZY
- * @LastEditTime: 2022-07-28 19:20:15
+ * @LastEditTime: 2022-08-28 18:15:17
  * @FilePath: /visual/src/components/RightModule/index.jsx
  */
 
 import React, { Component } from 'react'
-import { Row, Col, Card, Typography, Spin, Image, Button, Divider, Empty } from 'antd';
-import { ArrowLeftOutlined } from '@ant-design/icons';
+import { Row, Col, Card, Typography, Image, Button, Empty } from 'antd';
 import ReactECharts from 'echarts-for-react';
 
 
@@ -24,11 +23,12 @@ export default class Com3 extends Component {
     super(props);
     this.state = {
       show: 1,
+      
       choosePatches: props.choosePatches,
       optionLine: {
         title: {
           text: 'ACC & AUC',
-          top:-5
+          top: -5
         },
         grid: {
           left: '15%',
@@ -85,22 +85,20 @@ export default class Com3 extends Component {
   toBase = () => {
     this.setState({ show: 0 })
   }
-  chooseImg = (e) => {
-    setTimeout(() => {
-      document.getElementById("BarChart").classList.add("hidden")
-      document.getElementById("ConfusionChart").classList.add("hidden")
-      document.getElementById("right").classList.remove("ant-col-6")
-      document.getElementById("right").classList.add("ant-col-0")
-      document.getElementById("mainMap").classList.remove("ant-col-18")
-      document.getElementById("mainMap").classList.add("ant-col-14")
-      // document.getElementById("one").appendChild(document.getElementById("mapVision"))
-      document.getElementById("mapVision").classList.remove("hidden")
-      this.props.showMap()
-      this.state.choosePatches.map((item, index) => { document.getElementById("childCard" + index).classList.add("hidden") })
+  chooseImg = async (e) => {
 
-      // this.setState({ hide: false, showMap: true })
-      this.setState({ show: 2 })
-    }, 0);
+    await document.getElementById("BarChart").classList.add("hidden")
+    await document.getElementById("ConfusionChart").classList.add("hidden")
+    await document.getElementById("right").classList.remove("ant-col-6")
+    await document.getElementById("right").classList.add("ant-col-0")
+    await document.getElementById("mainMap").classList.remove("ant-col-18")
+    await document.getElementById("mainMap").classList.add("ant-col-14")
+    // document.getElementById("one").appendChild(document.getElementById("mapVision"))
+    await document.getElementById("mapVision").classList.remove("hidden")
+    await this.props.showMap()
+    await this.state.choosePatches.map((item, index) => { document.getElementById("childCard" + index).classList.add("hidden") })
+    // this.setState({ hide: false, showMap: true })
+    this.setState({ show: 2 })
   }
   deleteImg = (index) => {
     var tags = this.state.choosePatches
@@ -130,7 +128,7 @@ export default class Com3 extends Component {
                     &nbsp;Selected 6 Grids
                   </Title>
                   {
-                    this.state.choosePatches.length == 0 ? <Empty style={{ marginTop: "30vh" }} /> :
+                    this.state.choosePatches.length === 0 ? <Empty style={{ marginTop: "30vh" }} /> :
                       this.state.choosePatches.map((item, index) => {
 
                         return <Card.Grid className='childCard' id={'childCard' + index} key={'childCard' + index} style={gridStyle} >
@@ -156,7 +154,7 @@ export default class Com3 extends Component {
                   }</>
               }
               {/* {
-                this.state.show == 2 ?  <p>123</p>: null
+                this.state.show === 2 ?  <p>123</p>: null
                 // <MapVision hide={this.state.show != 2} back={this.getBack} load={this.setLoading} />
               } */}
             </Col>

@@ -1,11 +1,11 @@
 /*
  * @Date: 2022-04-17 18:26:37
  * @LastEditors: JZY
- * @LastEditTime: 2022-07-28 11:43:36
+ * @LastEditTime: 2022-08-28 18:05:21
  * @FilePath: /visual/src/components/CoreModule/index.jsx
  */
 import React, { Component } from 'react'
-import { Row, Col, Card, Typography, Spin, Image, Button, Timeline } from 'antd';
+import { Row, Col, Card } from 'antd';
 import ScatterModel from './ScatterModel';
 import SankeyModel from './SankeyModel';
 
@@ -30,17 +30,15 @@ export default class CoreModule extends Component {
         console.log("Core")
         this.scatterModelRef.changeDeletePatches(p)
     }
-    changeChoosePatches = (p) => {
-        this.setState({
+    changeChoosePatches = async (p) => {
+        await this.setState({
             choosePatches: p
         });
-        setTimeout(() => {
-            this.props.changeChoosePatches(this.state.choosePatches);
-        }, 0);
+        this.props.changeChoosePatches(this.state.choosePatches);
     }
     handleScatterModuleEvent = (ref) => {
         this.scatterModelRef = ref
-      }
+    }
     render() {
         return (
             <>
@@ -49,12 +47,17 @@ export default class CoreModule extends Component {
                     hoverable={true}
                 >
                     <Row>
-                        <Col span={24} style={{ height: "68vh" }}>
+                        <Col className='row_1' span={24}>
                             <ScatterModel
-                            onChildEvent={this.handleScatterModuleEvent} ref={this.scatterModelRef}
-                             changeChoosePatches={this.changeChoosePatches} choosePatches={this.state.choosePatches} showIndex={this.state.showIndex} Patches={this.state.selectedPatches} getSelectPatches={this.getSelectPatches} />
+                                onChildEvent={this.handleScatterModuleEvent}
+                                ref={this.scatterModelRef}
+                                changeChoosePatches={this.changeChoosePatches}
+                                choosePatches={this.state.choosePatches}
+                                showIndex={this.state.showIndex}
+                                Patches={this.state.selectedPatches}
+                                getSelectPatches={this.getSelectPatches} />
                         </Col>
-                        <Col span={24} style={{ height: "20vh" }}>
+                        <Col className='row_2' span={24}>
                             <SankeyModel />
                         </Col>
                     </Row>

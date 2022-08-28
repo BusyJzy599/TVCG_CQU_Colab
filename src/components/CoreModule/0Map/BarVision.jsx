@@ -1,8 +1,8 @@
 /*
  * @Date: 2022-06-30 16:24:20
  * @LastEditors: JZY
- * @LastEditTime: 2022-06-30 22:05:24
- * @FilePath: /visual/src/components/CoreModule/Map/BarVision.jsx
+ * @LastEditTime: 2022-08-28 18:05:42
+ * @FilePath: /visual/src/components/CoreModule/0Map/BarVision.jsx
  */
 import React, { Component } from 'react'
 import ReactECharts from 'echarts-for-react';
@@ -126,14 +126,12 @@ export default class BarVision extends Component {
             }, 0);
         }
     }
-    handleClose = (removedTag) => {
+    handleClose = async (removedTag) => {
         const newTags = this.state.selectPatches.filter((tag) => tag !== removedTag);
-        this.setState({
+        await this.setState({
             selectPatches: newTags
         })
-        setTimeout(() => {
-            this.props.getSelectPatches(this.state.selectPatches);
-        }, 0);
+        this.props.getSelectPatches(this.state.selectPatches);
     };
     render() {
         return (

@@ -1,12 +1,12 @@
 /*
  * @Date: 2022-05-31 10:47:38
  * @LastEditors: JZY
- * @LastEditTime: 2022-06-30 14:01:49
- * @FilePath: /visual/src/components/CoreModule/Scatter/index.jsx
+ * @LastEditTime: 2022-08-28 18:06:36
+ * @FilePath: /visual/src/components/CoreModule/0Scatter/index.jsx
  */
 import React, { Component } from 'react'
 import * as d3 from "d3";
-import { Row, Col, Radio, Typography ,Spin} from 'antd';
+import { Row, Col, Radio, Typography, Spin } from 'antd';
 import Scatter from './Scatter';
 
 const { Text, Title } = Typography;
@@ -19,7 +19,7 @@ export default class HeatMap extends Component {
             patcheId: -1,
             imgId: -1,
             selectedPatch: -1,
-            loading:true
+            loading: true
         }
     }
     handleChildEvent = (ref) => {
@@ -29,17 +29,15 @@ export default class HeatMap extends Component {
     componentDidMount() {
         this.drawChart();
     }
-    onChange = (e) => {
-        this.setState({
+    onChange = async (e) => {
+        await this.setState({
             chooseClass: e.target.value,
             scatter: "scatter" + e.target.value,
             selectedPatch: -1
         }
         );
-        this.drawChart(e.target.value)
-        setTimeout(() => {
-            this.childRef.changeScatter()
-        }, 0);
+        await this.drawChart(e.target.value)
+        this.childRef.changeScatter()
 
     };
     drawChart = (cl) => {
@@ -483,7 +481,7 @@ export default class HeatMap extends Component {
         })
         setTimeout(() => {
             this.setState({
-                loading:false
+                loading: false
             })
         }, 1000);
     }
@@ -492,34 +490,34 @@ export default class HeatMap extends Component {
     render() {
         return (
             <>
-             <Spin size="large" spinning={this.state.loading}>
-             <Row gutter={10}>
-                    <Col span={24}>
-                        <Title level={4}>Scatter for CC Grade:</Title>
-                    </Col>
-                    <Col span={24}>
-                        <Row gutter={10}>
-                            <Scatter id={this.state.scatter} onChildEvent={this.handleChildEvent} ref={this.childRef} patchId={this.state.patcheId} imgId={this.state.imgId} selectedPatch={this.state.selectedPatch} />
-                        </Row>
-                    </Col>
-                    <Col span={24} >
-                                <Title level={4}>HeatMap For each Patch:&nbsp;
-                                    <Radio.Group onChange={this.onChange} value={this.state.chooseClass}>
-                                        <Radio value="LUSC">LUSC</Radio>
-                                        <Radio value="LUAD">LUAD</Radio>
-                                    </Radio.Group>
-                                </Title>
-                        <div id="tooltip" className='hidden' >
-                            <p><span id="value" /></p>
-                        </div>
-                        <div id='heatmap' style={{ height: '30vh', overflowY: 'auto', overflowX: 'auto', marginRight:10}}>
+                <Spin size="large" spinning={this.state.loading}>
+                    <Row gutter={10}>
+                        <Col span={24}>
+                            <Title level={4}>Scatter for CC Grade:</Title>
+                        </Col>
+                        <Col span={24}>
+                            <Row gutter={10}>
+                                <Scatter id={this.state.scatter} onChildEvent={this.handleChildEvent} ref={this.childRef} patchId={this.state.patcheId} imgId={this.state.imgId} selectedPatch={this.state.selectedPatch} />
+                            </Row>
+                        </Col>
+                        <Col span={24} >
+                            <Title level={4}>HeatMap For each Patch:&nbsp;
+                                <Radio.Group onChange={this.onChange} value={this.state.chooseClass}>
+                                    <Radio value="LUSC">LUSC</Radio>
+                                    <Radio value="LUAD">LUAD</Radio>
+                                </Radio.Group>
+                            </Title>
+                            <div id="tooltip" className='hidden' >
+                                <p><span id="value" /></p>
+                            </div>
+                            <div id='heatmap' style={{ height: '30vh', overflowY: 'auto', overflowX: 'auto', marginRight: 10 }}>
 
-                        </div>
-                    </Col>
+                            </div>
+                        </Col>
 
-                </Row>
-             </Spin>
-               
+                    </Row>
+                </Spin>
+
 
             </>
 

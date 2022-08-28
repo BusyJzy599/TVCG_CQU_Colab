@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-07-21 11:22:01
  * @LastEditors: JZY
- * @LastEditTime: 2022-07-28 16:47:44
+ * @LastEditTime: 2022-08-28 19:47:53
  * @FilePath: /visual/src/components/CoreModule/SankeyModel/index.jsx
  */
 import React, { Component } from 'react'
@@ -9,6 +9,70 @@ import * as d3 from "d3";
 import ReactECharts from 'echarts-for-react';
 import { Typography, Slider, Col, Row } from 'antd';
 const { Title, Text } = Typography;
+
+const all_sample = 4000
+const epochData = [
+    // 标记样本,未标记样本,标记中噪声样本,未标记中噪声样本
+    [1000, 3000, 0, 0],
+    [1100, 2800, 50, 50],
+    [1200, 2600, 100, 100],
+    [1300, 2400, 150, 150],
+    [1400, 2200, 200, 200],
+    [1500, 2000, 250, 250],
+    [1600, 1800, 300, 300],
+
+]
+function createSankeyDataandLinks(data) {
+    data = epochData
+    var len = data.length
+    var nameData = [{ name: "All Samples" }];
+    for (var i = 0; i < len; i++) {
+        nameData.push({ name: "Labeled_" + i });
+        nameData.push({ name: "Unlabeled_" + i });
+        nameData.push({ name: "Noise_" + i });
+    }
+    var linkData = [
+        { source: nameData[0].name, target: nameData[1], value: data[0][0] },
+        { source: nameData[0].name, target: nameData[2], value: data[0][1] },
+    ];
+    for (var i = 0; i < len - 1; i++) {
+        linkData.push(
+            { source: nameData[3 * i ].name, target: nameData[3 * (i + 1) + 1].name, value: data[i][0]- data[i+1][2]},
+            { source: nameData[3 * i + 2].name, target: nameData[3 * (i + 1) + 2].name, value: data[i][1]- data[i+1][3]},
+            { source: nameData[3 * i + 3].name, target: nameData[3 * (i + 1) + 3].name, value: data[i][2] + data[i][3] },
+
+            { source: nameData[3 * i + 2].name, target: nameData[3 * (i + 1) + 1].name, value: data[i + 1][0] - data[i][0]- data[i+1][2] },
+            { source: nameData[3 * i + 2].name, target: nameData[3 * (i + 1) + 3].name, value: data[i + 1][2] },
+
+            { source: nameData[3 * i + 1].name, target: nameData[3 * (i + 1) + 3].name, value: data[i + 1][3] },
+        )
+    }
+    console.log(nameData)
+    console.log(linkData)
+
+    return nameData, linkData
+
+}
+var len = epochData.length
+var nameData = [];
+var linkData = [];
+for (var i = 0; i < len; i++) {
+    nameData.push({ name: "Labeled_" + i });
+    nameData.push({ name: "Unlabeled_" + i });
+    nameData.push({ name: "Noise_" + i });
+}
+for (var i = 0; i < len - 1; i++) {
+    linkData.push(
+        { source: nameData[3 * i ].name, target: nameData[3 * (i + 1)].name, value: epochData[i][0]-(epochData[i+1][2]-epochData[i][2]) },
+        { source: nameData[3 * i + 1].name, target: nameData[3 * (i + 1) + 1].name, value: epochData[i+1][1]},
+        { source: nameData[3 * i + 2].name, target: nameData[3 * (i + 1) + 2].name, value: epochData[i][2] + epochData[i][3] },
+
+        { source: nameData[3 * i + 1].name, target: nameData[3 * (i + 1)].name, value: epochData[i][1] - (epochData[i+1][3]-epochData[i][3])-epochData[i+1][0]},
+        { source: nameData[3 * i + 1].name, target: nameData[3 * (i + 1) + 2].name, value: epochData[i + 1][2] },
+
+        { source: nameData[3 * i ].name, target: nameData[3 * (i + 1) + 2].name, value: epochData[i+1][2]-epochData[i][2] },
+    )
+}
 
 const data = [
     { epoch: 0, TP: 0.1234, TN: 0.1234, FP: 0.1123, FN: 0.1123 },
@@ -34,73 +98,14 @@ export default class SankeyModel extends Component {
                 series: [
                     {
                         type: 'sankey',
-                        bottom: 5,
-                        top: 0,
                         right: 0,
                         nodeGap: 15,
+                        left:70,
                         emphasis: {
                             focus: 'adjacency'
                         },
-                        data: [
-                            { name: "All Samples" }, //4000
-                            { name: 'LS_0' }, //1000
-                            { name: 'ULS_0' }, //3000
-                            { name: 'LS_1' },
-                            { name: 'ULS_1' },
-                            { name: 'NS_1' },
-                            { name: 'LS_2' },
-                            { name: 'ULS_2' },
-                            { name: 'NS_2' },
-                            { name: 'LS_3' },
-                            { name: 'ULS_3' },
-                            { name: 'NS_3' },
-                            { name: 'LS_4' },
-                            { name: 'ULS_4' },
-                            { name: 'NS_4' },
-                            { name: 'LS_5' },
-                            { name: 'ULS_5' },
-                            { name: 'NS_5' },
-
-                        ],
-                        links: [
-                            { source: 'All Samples', target: 'LS_0', value: 1000 },
-                            { source: 'All Samples', target: 'ULS_0', value: 3000 },
-
-                            { source: 'LS_0', target: 'LS_1', value: 1000 },
-                            { source: 'LS_0', target: 'NS_1', value: 50 },
-                            { source: 'ULS_0', target: 'LS_1', value: 100 },
-                            { source: 'ULS_0', target: 'ULS_1', value: 2900 },
-                            { source: 'ULS_0', target: 'NS_1', value: 50 },
-
-                            { source: 'LS_1', target: 'LS_2', value: 1100 },
-                            { source: 'LS_1', target: 'NS_2', value: 50 },
-                            { source: 'ULS_1', target: 'LS_2', value: 100 },
-                            { source: 'ULS_1', target: 'ULS_2', value: 2800 },
-                            { source: 'ULS_1', target: 'NS_2', value: 50 },
-                            { source: 'NS_1', target: 'NS_2', value: 100 },
-
-                            { source: 'LS_2', target: 'LS_3', value: 1200 },
-                            { source: 'LS_2', target: 'NS_3', value: 50 },
-                            { source: 'ULS_2', target: 'LS_3', value: 200 },
-                            { source: 'ULS_2', target: 'ULS_3', value: 2600 },
-                            { source: 'ULS_2', target: 'NS_3', value: 50 },
-                            { source: 'NS_2', target: 'NS_3', value: 200 },
-
-                            { source: 'LS_3', target: 'LS_4', value: 1400 },
-                            { source: 'LS_3', target: 'NS_4', value: 50 },
-                            { source: 'ULS_3', target: 'LS_4', value: 200 },
-                            { source: 'ULS_3', target: 'ULS_4', value: 2400 },
-                            { source: 'ULS_3', target: 'NS_4', value: 50 },
-                            { source: 'NS_3', target: 'NS_4', value: 300 },
-
-                            { source: 'LS_4', target: 'LS_5', value: 1200 },
-                            { source: 'LS_4', target: 'NS_5', value: 50 },
-                            { source: 'ULS_4', target: 'LS_5', value: 200 },
-                            { source: 'ULS_4', target: 'ULS_5', value: 2200 },
-                            { source: 'ULS_4', target: 'NS_5', value: 50 },
-                            { source: 'NS_4', target: 'NS_5', value: 400 },
-
-                        ],
+                        data: nameData,
+                        links: linkData,
                         // orient: 'vertical',
                         label: {
                             position: 'left'
@@ -118,9 +123,6 @@ export default class SankeyModel extends Component {
     }
     componentDidMount() {
         this.drawMatric(17);
-        console.log([[0, 0, 0.6], [0, 1, 0.7], [1, 1, 0.16], [1, 0, 0.45]].map(function (item) {
-            return [item[1], item[0], item[2] || '-'];
-        }))
     }
     drawMatric = (epoch) => {
         this.setState({
@@ -288,30 +290,27 @@ export default class SankeyModel extends Component {
                 <Row gutter={5}>
                     <Col span={19} >
                         <Title level={5}>SanKey for Epoches:</Title>
-                        <ReactECharts option={this.state.option} style={{ height: "16vh", width: "57vw" }} />
+                        <ReactECharts
+                            option={this.state.option}
+                            style={{ height: "16vh", width: "57vw" }} />
                     </Col>
-                    <Col span={5} id="ConfusionChart" style={{ borderLeft: '3px solid rgba(240, 242, 245)' }} >
-                        <ReactECharts option={this.state.confuseMatrixOption} style={{ height: "18vh", width: "14vw" }} />
+                    <Col span={5} id="ConfusionChart" >
+                        <ReactECharts
+                            option={this.state.confuseMatrixOption}
+                            style={{ height: "18vh", width: "14vw" }} />
                         <Row>
                             <Col span={1} />
                             <Col span={6}>
                                 <Text type='secondary'>Epoch:</Text>
                             </Col>
-                            <Col span={17}><Slider
-                                included={false}
-                                defaultValue={17}
-                                min={0} max={17}
-                                onChange={this.selectEpoch}
-                            /></Col>
+                            <Col span={17}>
+                                <Slider
+                                    included={false}
+                                    defaultValue={17}
+                                    min={0} max={17}
+                                    onChange={this.selectEpoch}
+                                /></Col>
                         </Row>
-
-                        {/* <div style={{height:40 }}></div>
-                        <div id="confuseMatrix" style={{ height: "18vh" }}>
-
-                        </div>
-                        <div id="tooltip1" className='hidden' >
-                            <p><span id="value" /></p>
-                        </div> */}
                     </Col>
                 </Row>
 

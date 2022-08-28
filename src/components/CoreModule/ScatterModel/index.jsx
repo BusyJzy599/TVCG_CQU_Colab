@@ -1,16 +1,14 @@
 /*
  * @Date: 2022-07-21 10:17:01
  * @LastEditors: JZY
- * @LastEditTime: 2022-07-28 16:48:25
+ * @LastEditTime: 2022-08-28 18:37:28
  * @FilePath: /visual/src/components/CoreModule/ScatterModel/index.jsx
  */
 
 import React, { Component } from 'react'
-import * as d3 from "d3";
-import { Row, Col, Radio, Typography, Spin, List, Tag, Button } from 'antd';
+import { Row, Col } from 'antd';
 import Scatter from './Scatter';
 import Bar from './Bar';
-const { Text, Title } = Typography;
 export default class ScatterModel extends Component {
     constructor(props) {
         super(props);
@@ -31,27 +29,23 @@ export default class ScatterModel extends Component {
         this.setState({
             choosePatches: p
         });
-        console.log("Scatter")
         this.barChildRef.changeDeletePatches(p)
     }
-    // 将子组件的实例存到 this.childRef 中, 这样整个父组件就能拿到
     handleScatterChildEvent = (ref) => {
         this.scatterChildRef = ref
     }
     handleBarChildEvent = (ref) => {
         this.barChildRef = ref
     }
-    onChange = (e) => {
-        this.setState({
+    onChange = async (e) => {
+        await this.setState({
             chooseClass: e.target.value,
             scatter: "scatter" + e.target.value,
             selectedPatch: -1
         }
         );
-        this.drawChart(e.target.value)
-        setTimeout(() => {
-            this.childRef.changeScatter()
-        }, 0);
+        await this.drawChart(e.target.value);
+        this.childRef.changeScatter()
 
     };
     changeBarRange = (id) => {
@@ -70,52 +64,24 @@ export default class ScatterModel extends Component {
             <>
                 <Row gutter={5}>
                     <Col span={19} >
-                        {/* <div id="selectTip" style={{ left: "2.3vw", top: "58vh" }}>
-                            <List
-                                bordered
-                                dataSource={[0]}
-                                renderItem={(item) => (
-                                    <List.Item>
-                                        <Row style={{ width: "58vw", height: "3vh" }}>
-                                            <Col span={4}>
-                                                <Typography.Text>
-                                                    Choose Patches:
-                                                </Typography.Text>
-                                            </Col>
-                                            <Col span={18}>
-                                                {
-                                                    this.state.selectedPatches.length == 0 ? <Typography.Text type="secondary">Please Choose 9 Patches...</Typography.Text> :
-                                                        this.state.selectedPatches.map((item, index) => {
-                                                            return <>
-                                                                <Tag closable key={item}
-                                                                    onClose={() => this.handleClose(item)}
-                                                                >
-                                                                    {item}
-                                                                </Tag>
-                                                            </>
-                                                        })
-                                                }
-
-                                            </Col>
-                                            <Col span={2}>
-                                                <Button type='primary' onClick={this.test}>Select</Button>
-                                            </Col>
-                                        </Row>
-
-
-                                    </List.Item>
-                                )}
-                            />
-                        </div> */}
-                        <Scatter id={this.state.scatter} changeBarRange={this.changeBarRange} onChildEvent={this.handleScatterChildEvent} ref={this.scatterChildRef} patchId={this.state.patcheId} imgId={this.state.imgId} />
+                        <Scatter
+                            id={this.state.scatter}
+                            changeBarRange={this.changeBarRange}
+                            onChildEvent={this.handleScatterChildEvent}
+                            ref={this.scatterChildRef}
+                            patchId={this.state.patcheId}
+                            imgId={this.state.imgId} />
                     </Col>
-                    <Col span={5} id="BarChart" style={{borderLeft:'3px solid rgba(240, 242, 245)'}}>
-                        <Bar  
-                        changeChoosePatches={this.changeChoosePatches} 
-                        choosePatches={this.state.choosePatches}
-                         onChildEvent={this.handleBarChildEvent} 
-                         ref={this.barChildRef} />
+
+                    <Col span={5} id="BarChart" >
+                            <Bar
+                                changeChoosePatches={this.changeChoosePatches}
+                                choosePatches={this.state.choosePatches}
+                                onChildEvent={this.handleBarChildEvent}
+                                ref={this.barChildRef} />
                     </Col>
+
+
                 </Row>
             </>
         )

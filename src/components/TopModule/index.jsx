@@ -1,20 +1,19 @@
 /*
  * @Date: 2022-05-14 20:45:48
  * @LastEditors: JZY
- * @LastEditTime: 2022-07-28 18:57:58
- * @FilePath: /visual/src/components/Top/index.jsx
+ * @LastEditTime: 2022-08-28 18:14:22
+ * @FilePath: /visual/src/components/TopModule/index.jsx
  */
 import React, { Component } from 'react'
-import { PageHeader, Typography, Row, Col, Select, Collapse, Button, Menu } from 'antd'
+import { Typography, Row, Col, Select, Collapse } from 'antd'
 import './index.css'
 
 const { Option } = Select;
 const { Text, Title } = Typography;
-const { Panel } = Collapse;
 const classes = ['LUSC', 'LUAD'];
 const info = [['Dataset:', 'NSCLC', 0], ['Noise Ratio:', '40%', 0], ['Model:', 'ResNet50', 0], ['Epoch:', 20, 1]]
 
-export default class Top extends Component {
+export default class TopModule extends Component {
     constructor(props) {
         super(props);
         this.state = {
@@ -71,7 +70,7 @@ export default class Top extends Component {
                     }
                 ]
             },
-            
+
         }
 
     }
@@ -80,32 +79,32 @@ export default class Top extends Component {
             <>
                 <Row gutter={5}>
                     <Col span={2}>
-                        <Title style={{ color: "azure" ,marginTop:5}}>TVCG</Title>
+                        <Title style={{ color: "azure", marginTop: 5 }}>TVCG</Title>
                     </Col>
 
                     {
                         info.map((item, index) => {
                             return <>
                                 <Col span={1}></Col>
-                                {item[2] == 0 ? <> <Col>
+                                {item[2] === 0 ? <> <Col>
                                     <Text className='siderFont'>{item[0]}</Text>
                                 </Col>
                                     <Col span={1}>
                                         <Select defaultValue={item[1]} disabled>
                                             <Option value={item[1]}>{item[1]}</Option>
                                         </Select>
-                                    </Col></> : <><Col span={1}/>
+                                    </Col></> : <><Col span={1} />
                                     <Col>
                                         <Text className='siderFont'>{item[0]}</Text>
                                     </Col>
                                     <Col >
-                                        <Title level={3} type="warning" style={{paddingTop:15}}>{this.state.epoch} / {item[1]}</Title>
+                                        <Title level={3} type="warning" style={{ paddingTop: 15 }}>{this.state.epoch} / {item[1]}</Title>
                                     </Col>
                                 </>}
                             </>
                         })
                     }
-                    <Col span={1}/>
+                    <Col span={1} />
 
                 </Row>
                 {/* <div className="logo" />

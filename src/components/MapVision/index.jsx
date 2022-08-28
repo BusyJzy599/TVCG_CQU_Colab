@@ -1,44 +1,27 @@
 /*
  * @Date: 2022-05-14 09:45:54
  * @LastEditors: JZY
- * @LastEditTime: 2022-07-29 09:07:49
+ * @LastEditTime: 2022-08-28 18:40:34
  * @FilePath: /visual/src/components/MapVision/index.jsx
  */
 import React, { Component } from 'react'
 import * as d3 from "d3";
-import { RedoOutlined, FilterOutlined, ArrowLeftOutlined, HeatMapOutlined, AimOutlined, MenuOutlined } from '@ant-design/icons';
+import { RedoOutlined, FilterOutlined, ArrowLeftOutlined, HeatMapOutlined, AimOutlined, MenuOutlined, AppstoreOutlined } from '@ant-design/icons';
 import { Button, Modal, Row, Col, Typography, Radio, Switch, Select, Drawer, Empty, Tag, Image, Descriptions, Card, Spin } from 'antd';
 import ShowImg from './ShowImg';
 const { Option } = Select;
 // 常量设置
 const { Title, Text } = Typography;
-
-const style = {
-    height: '65vh',
-    width: '40vw',
-    marginTop: -5,
-    border: '1px solid rgba(0, 0, 0, 0.5)',
-}
-const toolStyle = {
-
-}
-//
-
 const xScale = d3.scaleLinear()
 const yScale = d3.scaleLinear()
-const maxValue = 40     // 网格分割数
-const lineWidth = 0.3     // 分割线宽度
+const maxValue = 40     // 缩放大小
+const lineWidth = 0.4     // 分割线宽度
+const rows = 73         //每行个数
+const cols = 57         //每列个数
+const imgSize = 10      //图片大小
 
-
-const rows = 73
-const cols = 57
-const imgSize = 10
-
-
-// const mapColors = ['#134d88', '#65a9cf', '#d5e6f1', '#fcd7c1', '#dd7059', '#870a24']
 const mapColors = ['#e7f1ff', '#b3d2ed', '#5ca6d4', '#1970ba', '#0c3b80', "#042950"];
-
-const mapLevel = ['0.10  Postive', '0.25', '0.45', '0.60', '0.75', '0.90  Negative']
+const mapLevel = ['Postive', '0.25', '0.45', '0.60', '0.75', 'Negative']
 const nosieColors = ['#c23531', '#91c7ae', '#1a61da']
 //
 var trans = { k: 1, x: 0, y: 0 }
@@ -63,6 +46,7 @@ export default class MapVision extends Component {
         super(props);
         this.state = {
             visible: false,
+            gridSize: 1,
             drawerVisible: false,
             confirmLoading: false,
             idx: -1,
@@ -196,8 +180,8 @@ export default class MapVision extends Component {
             idy: y
         })
     }
-    setVisible = (args) => {
-        this.setState({
+    setVisible = async (args) => {
+        await this.setState({
             option: {
                 grid: {
 
@@ -242,12 +226,17 @@ export default class MapVision extends Component {
                 }]
             }
         })
-        setTimeout(() => {
-            this.setState({
-                visible: args,
-            })
-        }, 0);
+        this.setState({
+            visible: args,
+        })
+    }
 
+    changeGridSize = async (e) => {
+        await this.setState({
+            gridSize: e.target.value
+        });
+
+        this.drawChart()
     }
     setConfirmLoading = (args) => {
         this.setState({
@@ -270,17 +259,13 @@ export default class MapVision extends Component {
     handleCancel = () => {
         this.setVisible(false);
     };
-    componentDidMount() {
-        this.props.onChildEvent(this);
-        this.drawChart();
-        if (window.location.hash.split('/')[1] == undefined || window.location.hash.split('/')[1] == "") {
-            setTimeout(() => {
-                this.setState({
-                    load: false
-                })
-            }, 0);
+    componentDidMount = async () => {
+        await this.props.onChildEvent(this);
+        await this.drawChart();
+        this.setState({
+            load: false
+        })
 
-        }
     }
     // click = (d) => {
     //     const width = document.getElementById("map").clientWidth
@@ -305,7 +290,7 @@ export default class MapVision extends Component {
         // 初始化zoom
         const zoom = d3.zoom()
             .scaleExtent([1, maxValue])
-            // .translateExtent([[0, 0], [width, height]])
+            .translateExtent([[0, 0], [imgSize * rows, imgSize * cols]])
             .on("zoom", zoomed);
         // 热力图
         var colorScale = d3.scaleLinear()
@@ -316,24 +301,24 @@ export default class MapVision extends Component {
             .append('svg')
             .attr("width", width)
             .attr('height', height);
-
+        // 绘制网格
         const grid = g => g
-            .attr("stroke", "currentColor")
-            .attr("stroke-opacity", 0.1)
+            .attr("stroke", "blue")
+            .attr("stroke-opacity",0.5)
             .attr("stroke-width", lineWidth)
             .call(g => g.append("g")
                 .selectAll("line")
                 .data(xScale.ticks(rows))
                 .join("line")
-                .attr("x1", d => xScale(d))
-                .attr("x2", d => xScale(d))
+                .attr("x1", d => xScale(this.state.gridSize * d))
+                .attr("x2", d => xScale(this.state.gridSize * d))
                 .attr("y2", imgSize * cols))
             .call(g => g.append("g")
                 .selectAll("line")
                 .data(yScale.ticks(cols))
                 .join("line")
-                .attr("y1", d => yScale(d))
-                .attr("y2", d => yScale(d))
+                .attr("y1", d => yScale(this.state.gridSize * d))
+                .attr("y2", d => yScale(this.state.gridSize * d))
                 .attr("x2", imgSize * rows))
 
         // 绘图
@@ -355,12 +340,10 @@ export default class MapVision extends Component {
                     .attr("width", imgSize - lineWidth)
             }
         }
+
         // 添加
         mainGroup.call(grid);
         mainGroup.call(zoom);
-        // mainGroup.on("click", this.click);
-
-
         // 恢复大小
         d3.select('#zoom_out').on('click', () => mainGroup.transition().call(zoom.transform, d3.zoomIdentity, [0, 0]));
         // 改变热力图
@@ -396,26 +379,25 @@ export default class MapVision extends Component {
         }
         function zoomed(event) {
             var margin = lineWidth / event.transform.k
-
             mainGroup.selectAll("line").remove()
             mainGroup.selectAll("image").remove()
             const grid = g => g
-                .attr("stroke", "currentColor")
-                .attr("stroke-opacity", 0.1)
+                .attr("stroke", "blue")
+                .attr("stroke-opacity", 0.5)
                 .attr("stroke-width", margin)
                 .call(g => g.append("g")
                     .selectAll("line")
                     .data(xScale.ticks(rows))
                     .join("line")
-                    .attr("x1", d => xScale(d))
-                    .attr("x2", d => xScale(d))
+                    .attr("x1", d => xScale(This.state.gridSize * d))
+                    .attr("x2", d => xScale(This.state.gridSize * d))
                     .attr("y2", imgSize * cols).attr("transform", event.transform))
                 .call(g => g.append("g")
                     .selectAll("line")
                     .data(yScale.ticks(cols))
                     .join("line")
-                    .attr("y1", d => yScale(d))
-                    .attr("y2", d => yScale(d))
+                    .attr("y1", d => yScale(This.state.gridSize * d))
+                    .attr("y2", d => yScale(This.state.gridSize * d))
                     .attr("x2", imgSize * rows).attr("transform", event.transform));
             const imgs = mainGroup.selectAll("image").data([0]);
             for (var i = 0; i < rows; i++) {
@@ -487,64 +469,80 @@ export default class MapVision extends Component {
                         bordered={false}
                         hoverable={true}
                     >
-                        <Row hidden={this.props.hide} style={toolStyle} gutter={[10, 5]} >
+                        <Row hidden={this.props.hide} gutter={[5, 5]} >
 
                             <Col span={24}>
-                                <div id='map' style={style}>
+                                <div id='map' >
 
                                 </div>
                             </Col>
-                            <Col span={24}>
-                                <Title level={5}>
-                                    <Button type="text" icon={<ArrowLeftOutlined />} onClick={this.getBack}></Button>
-                                    &nbsp;Selected Image Show
-                                </Title>
-                            </Col>
-                            <Col span={1}></Col>
-                            <Col span={22}>
-                                <Row gutter={[10, 10]}>
-                                    <Col span={5}>
+                            <Col span={10}>
+                                <Row gutter={[5, 10]}>
+                                    <Col span={24}>
+                                        <Title level={5}>
+                                            <Button type="text" icon={<ArrowLeftOutlined />} onClick={this.getBack}></Button>
+                                            &nbsp;Selected Image Show
+                                        </Title>
+                                    </Col>
+                                    <Col span={1} />
+                                    <Col span={22}>
                                         <Row gutter={[5, 10]}>
-                                            <Col span={24}>
+                                            <Col span={10}>
                                                 <Text type="secondary"><AimOutlined />&nbsp;Refresh:</Text>
                                             </Col>
-                                            <Col>
+                                            <Col span={14}>
                                                 <Button id='zoom_out' type="primary" shape="round" size="small" icon={<RedoOutlined />} ghost>Refresh</Button>
                                             </Col>
-                                        </Row>
-                                        <Row gutter={[5, 10]}>
-                                            <Col span={24}>
+                                            <Col span={10}>
                                                 <Text type="secondary"><HeatMapOutlined />&nbsp;HeatMap:</Text>
                                             </Col>
-                                            <Switch id='zoom_change'
-                                                checkedChildren="HeatMap"
-                                                unCheckedChildren="Formally"
-                                            />
+                                            <Col span={14}>
+                                                <Switch id='zoom_change'
+                                                    checkedChildren="HeatMap"
+                                                    unCheckedChildren="Formally"
+                                                />
+                                            </Col>
+
+                                            <Col span={24}>
+                                                <Row gutter={5}>
+                                                    {
+                                                        mapColors.map((item, index) => {
+                                                            return <>
+                                                                <Col span={3} >
+                                                                    <div style={{ width: 15, height: 15, backgroundColor: item }}></div>
+                                                                </Col>
+                                                                <Col span={9}> <Text>{mapLevel[index]}</Text></Col>
+                                                            </>
+                                                        })
+                                                    }
+                                                </Row>
+                                            </Col>
+
                                         </Row>
                                     </Col>
+                                </Row>
+                            </Col>
+                            <Col span={14}>
+                                <Row gutter={[10, 10]}>
+
                                     {/* <Col span={24}>
                                         <Radio.Group onChange={{}} defaultValue="Fine">
                                             <Radio.Button value="O2U">O2U</Radio.Button>
                                             <Radio.Button value="Fine">Fine</Radio.Button>
                                         </Radio.Group>
                                     </Col> */}
-                                    <Col span={8}>
-                                        <Row gutter={10}>
-                                            {
-                                                mapColors.map((item, index) => {
-                                                    return <>
-                                                        <Col span={2}></Col>
-                                                        <Col span={3} >
-                                                            <div style={{ width: 15, height: 15, backgroundColor: item }}></div>
-                                                        </Col>
-                                                        <Col span={19}> <Text>{mapLevel[index]}</Text></Col>
-                                                    </>
-                                                })
-                                            }
-                                        </Row>
-                                    </Col>
-                                    <Col span={10}>
+
+                                    <Col span={18}>
                                         <Row>
+                                            <Col span={24}>
+                                                <Text type="secondary"><AppstoreOutlined />&nbsp;Grid Size:</Text>
+                                                <Radio.Group onChange={this.changeGridSize} value={this.state.gridSize}>
+                                                    <Radio value={1}>1</Radio>
+                                                    <Radio value={2}>2</Radio>
+                                                    <Radio value={3}>3</Radio>
+                                                    <Radio value={4}>4</Radio>
+                                                </Radio.Group>
+                                            </Col>
                                             <Col span={24}>
                                                 <Text type="secondary"><MenuOutlined />&nbsp;Noise Sample List:</Text>
                                                 <Select
@@ -576,9 +574,6 @@ export default class MapVision extends Component {
                                         </Row>
 
                                     </Col>
-
-
-
                                 </Row>
 
                             </Col>

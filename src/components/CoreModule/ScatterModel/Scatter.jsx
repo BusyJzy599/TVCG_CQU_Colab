@@ -1,21 +1,18 @@
 /*
  * @Date: 2022-05-26 22:06:56
  * @LastEditors: JZY
- * @LastEditTime: 2022-07-28 22:15:45
+ * @LastEditTime: 2022-08-28 17:10:01
  * @FilePath: /visual/src/components/CoreModule/ScatterModel/Scatter.jsx
  */
 import React, { Component } from 'react'
 import * as d3 from "d3";
 import ReactECharts from 'echarts-for-react';
-import { Row, Col, Typography, Select, Radio, Slider, Tag, List, Button } from 'antd';
+import { Row, Col, Typography, Select, Radio, Slider } from 'antd';
 import { FilterOutlined, UnorderedListOutlined, ColumnWidthOutlined, TagOutlined } from '@ant-design/icons';
-import { rgb } from 'd3';
-
-
 
 
 const { Option } = Select;
-const { Text, Title } = Typography;
+const { Text } = Typography;
 const legend_colors = ['#65a9cf', '#faad14de', '#870a24']
 const colors = [[1, 169, 207], [250, 173, 20], [135, 10, 36]]
 const grade = ['clean', 'noise', 'highly noise']
@@ -57,14 +54,13 @@ export default class Scatter extends Component {
         this.drawChart();
     }
     selectGrade = (index, e) => {
-        if (index == this.state.grade)
+        if (index === this.state.grade)
             this.setState({ grade: -1 });
         else
             this.setState({ grade: index });
         this.drawChart();
 
     }
-
     selectRange = (value) => {
 
         this.setState({ range: value });
@@ -166,7 +162,7 @@ export default class Scatter extends Component {
                         .attr("img_id", d => d[4])
                         //
                         // .attr("fill", d => colors[d[2]])
-                        .attr("fill", d => rgb(colors[d[2]][0], colors[d[2]][1], colors[d[2]][2], d[5] + 0.1))
+                        .attr("fill", d => d3.rgb(colors[d[2]][0], colors[d[2]][1], colors[d[2]][2], d[5] + 0.1))
                         .attr('r', 2.5)
                         .attr("fill-opacity", function (d, i) {
                             if (g == d[2])
@@ -208,7 +204,7 @@ export default class Scatter extends Component {
                         .attr("img_id", d => d[4])
                         //
                         // .attr("fill", d => colors[d[2]])
-                        .attr("fill", d => rgb(colors[d[2]][0], colors[d[2]][1], colors[d[2]][2], d[5] + 0.1))
+                        .attr("fill", d => d3.rgb(colors[d[2]][0], colors[d[2]][1], colors[d[2]][2], d[5] + 0.1))
                         .attr('r', function (d, i) {
                             if (p != -1) {
                                 if (p == d[3])
@@ -268,8 +264,6 @@ export default class Scatter extends Component {
 
     }
 
-
-
     render() {
         return (
             <>
@@ -281,7 +275,9 @@ export default class Scatter extends Component {
                             <Col><Text type='secondary'>X:&nbsp;{this.state.X}</Text></Col>
                             <Col><Text type='secondary'>Y:&nbsp;{this.state.Y}</Text></Col>
 
-                            <ReactECharts option={this.state.option} style={{ height: "10vh", width: "10vw" }} />
+                            <ReactECharts
+                                option={this.state.option}
+                                style={{ height: "10vh", width: "10vw" }} />
                         </Row>
                     </div>
                     <div id="scatterTip" style={{ left: "41.5vw" }}>
@@ -321,10 +317,7 @@ export default class Scatter extends Component {
                             <Text type="secondary"><FilterOutlined />&nbsp;CC Grade:&nbsp;</Text>
                             <Col span={24}>
                                 <Select defaultValue="-1"
-                                    onChange={this.selectGrade}
-                                    style={{
-                                        width: 120,
-                                    }}>
+                                    onChange={this.selectGrade}>
                                     <Option value="-1">All Sample</Option>
                                     <Option value="0">Clean</Option>
                                     <Option value="1">Nosie</Option>
@@ -353,7 +346,7 @@ export default class Scatter extends Component {
                             </Col>
                         </Row>
                     </div>
-                    <div id={this.props.id} style={{ height: "68vh", width: "57vw" }}>
+                    <div id={this.props.id}  className="scatterChart" >
                     </div>
                 </Col>
 

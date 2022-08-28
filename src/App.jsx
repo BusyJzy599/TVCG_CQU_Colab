@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-04-17 17:39:09
  * @LastEditors: JZY
- * @LastEditTime: 2022-07-28 11:41:54
+ * @LastEditTime: 2022-08-28 18:18:01
  * @FilePath: /visual/src/App.jsx
  */
 import './App.css';
@@ -16,7 +16,7 @@ import {
 import CoreModule from './components/CoreModule'
 import MapVision from './components/MapVision'
 import RightModule from './components/RightModule'
-import Top from './components/Top';
+import TopModule from './components/TopModule';
 
 
 const { Content, Sider, Header } = Layout;
@@ -41,8 +41,11 @@ export default class App extends Component {
     });
     this.RightModule.current.changeChoosePatches(p);
   }
-  showMap = () => {
-    this.mapChildRef.drawChart();
+  showMap =  async() => {
+    await this.mapChildRef.setState({
+      load:true
+    });
+    this.mapChildRef.componentDidMount();
   }
   handleMapChildEvent = (ref) => {
     this.mapChildRef = ref
@@ -54,22 +57,33 @@ export default class App extends Component {
     return (
       <>
         <Layout>
-          <Header
-            style={{ background: '#042950', height: "8vh", paddingLeft: 20 }}
-          >
-            <Top />
+          <Header className='headerModule'>
+            <TopModule />
           </Header>
-          <Content className="site-layout" style={{ padding: '0 20px', marginLeft: -15, marginRight: -15 }}>
-            <Space className='basic' direction="vertical" size="small" style={{ display: 'flex' }}>
+          <Content className="site-layout">
+            <Space className='basic' direction="vertical" size="small">
               <Row gutter={[5, 5]} id="one">
                 <Col span={18} id="mainMap">
-                  <CoreModule onChildEvent={this.handleCoreModuleEvent} ref={this.coreModuleRef} changeChoosePatches={this.changeChoosePatches} choosePatches={this.state.choosePatches} Patches={this.state.selectedPatches} />
+                  <CoreModule
+                    onChildEvent={this.handleCoreModuleEvent}
+                    ref={this.coreModuleRef}
+                    changeChoosePatches={this.changeChoosePatches}
+                    choosePatches={this.state.choosePatches}
+                    Patches={this.state.selectedPatches}
+                  />
                 </Col>
                 <Col span={6} id="right">
-                  <RightModule showMap={this.showMap} changeDeletePatches={this.changeDeletePatches} choosePatches={this.state.choosePatches} ref={this.RightModule} />
+                  <RightModule
+                    showMap={this.showMap}
+                    ref={this.RightModule}
+                    changeDeletePatches={this.changeDeletePatches}
+                    choosePatches={this.state.choosePatches}
+                  />
                 </Col>
                 <Col span={10} className="hidden" id="mapVision">
-                  <MapVision onChildEvent={this.handleMapChildEvent} ref={this.mapChildRef} />
+                  <MapVision
+                    onChildEvent={this.handleMapChildEvent}
+                    ref={this.mapChildRef} />
                 </Col>
               </Row>
             </Space>

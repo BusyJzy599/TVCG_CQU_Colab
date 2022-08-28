@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-05-14 09:45:54
  * @LastEditors: JZY
- * @LastEditTime: 2022-07-27 21:31:36
+ * @LastEditTime: 2022-08-28 18:06:20
  * @FilePath: /visual/src/components/CoreModule/0Map/MapVision.jsx
  */
 import React, { Component } from 'react'
@@ -157,13 +157,12 @@ export default class MapVision extends Component {
         this.setVisible(true);
     };
 
-    handleOk = () => {
+    handleOk = async () => {
         //   setModalText('The modal will be closed after two seconds');
-        this.setConfirmLoading(true);
-        setTimeout(() => {
-            this.setVisible(false);
-            this.setConfirmLoading(false);
-        }, 2000);
+        await this.setConfirmLoading(true);
+
+        this.setVisible(false);
+        this.setConfirmLoading(false);
     };
 
     handleCancel = () => {

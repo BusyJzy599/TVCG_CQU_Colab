@@ -20,15 +20,15 @@ export default class Map extends Component {
         this.state = {
             loading: false,
             show: props.showIndex,
-            selectedPatches:props.Patches
+            selectedPatches: props.Patches
         }
     }
     componentDidMount() {
         this.props.onRef(this)
     }
-    getSelectPatches=(p)=>{
+    getSelectPatches = (p) => {
         this.setState({
-            selectedPatches:p
+            selectedPatches: p
         })
     }
     toGrid = () => {
@@ -37,14 +37,12 @@ export default class Map extends Component {
     toBase = () => {
         this.setState({ show: 0 })
     }
-    chooseImg = (e) => {
-        this.setState({ loading: true })
-        setTimeout(() => {
-            // console.log(e.target.id);
-            imgs.map((item, index) => { document.getElementById("childCard" + index).style.visibility = "hidden" })
-            // this.setState({ hide: false, showMap: true })
-            this.setState({ show: 2 })
-        }, 0);
+    chooseImg = async (e) => {
+        await this.setState({ loading: true })
+        // console.log(e.target.id);
+        await imgs.map((item, index) => { document.getElementById("childCard" + index).style.visibility = "hidden" })
+        // this.setState({ hide: false, showMap: true })
+        this.setState({ show: 2 })
     }
 
     getBack = () => {
@@ -62,7 +60,7 @@ export default class Map extends Component {
                     <Col span={24} style={{ height: '72vh' }}>
                         {
                             this.state.show == 0 ? <>
-                                <BarVision getSelectPatches={this.getSelectPatches} patches={this.state.selectedPatches}/>
+                                <BarVision getSelectPatches={this.getSelectPatches} patches={this.state.selectedPatches} />
                                 <br></br>
                                 <Row gutter={[20]}>
                                     <Col span={19}></Col>
