@@ -1,38 +1,55 @@
 /*
  * @Date: 2022-04-17 18:27:09
  * @LastEditors: JZY
- * @LastEditTime: 2022-08-28 18:15:17
+ * @LastEditTime: 2022-10-04 11:39:16
  * @FilePath: /visual/src/components/RightModule/index.jsx
  */
 
 import React, { Component } from 'react'
+import * as d3 from "d3";
 import { Row, Col, Card, Typography, Image, Button, Empty } from 'antd';
 import ReactECharts from 'echarts-for-react';
 
 
-const { Text, Title } = Typography;
-
-const gridStyle = {
-  textAlign: 'center',
-  display: "block",
-  height: '21vh',
-  width: "50%",
-};
-export default class Com3 extends Component {
+const { Title } = Typography;
+const path = "./data/ready/epoch_Data.csv"
+export default class RightModule extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      show: 1,
-      
       choosePatches: props.choosePatches,
+      optionLine: {}
+    }
+  }
+  componentDidMount = () => {
+    this.props.onChildEvent(this);
+    this.drawLineChart();
+  }
+  changeChoosePatches = (p) => {
+    this.setState({
+      choosePatches: p
+    })
+  }
+  drawLineChart = async () => {
+    var index = []
+    var acc = []
+    var auc = []
+    await d3.csv(path).then(function (data) {
+      data.forEach(e => {
+        index.push(parseInt(e["epoch"]))
+        acc.push(parseFloat(e["acc"]))
+        auc.push(parseFloat(e["auc"]))
+      })
+    });
+    this.setState({
       optionLine: {
         title: {
           text: 'ACC & AUC',
           top: -5
         },
         grid: {
-          left: '15%',
-          top: 20,
+          left: '10%',
+          top: "10%",
           right: 0,
           bottom: 20
         },
@@ -47,11 +64,9 @@ export default class Com3 extends Component {
         },
         xAxis: {
           type: 'category',
-          data: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20]
+          data: index
         },
         yAxis: {
-          min: 0.45,
-          max: 1,
           splitLine: {
             show: false
           },
@@ -62,107 +77,86 @@ export default class Com3 extends Component {
             name: 'acc',
             type: 'line',
             showSymbol: false,
-            data: [0.61, 0.62, 0.63, 0.71, 0.67, 0.61, 0.62, 0.63, 0.71, 0.83, 0.71, 0.67, 0.83, 0.85, 0.87, 0.89, 0.91]
+            data: acc
           },
           {
             name: 'auc',
             type: 'line',
             showSymbol: false,
-            data: [0.51, 0.52, 0.53, 0.61, 0.62, 0.63, 0.71, 0.61, 0.87, 0.93, 0.81, 0.87, 0.93, 0.85, 0.87, 0.86, 0.95]
+            data: auc
           },
         ]
       }
-    }
-  }
-  changeChoosePatches = (p) => {
-    this.setState({
-      choosePatches: p
     })
-  }
-  toGrid = () => {
-    this.setState({ show: 1 })
-  }
-  toBase = () => {
-    this.setState({ show: 0 })
-  }
-  chooseImg = async (e) => {
 
-    await document.getElementById("BarChart").classList.add("hidden")
-    await document.getElementById("ConfusionChart").classList.add("hidden")
+  }
+  // 
+  chooseImg = async (e) => {
     await document.getElementById("right").classList.remove("ant-col-6")
     await document.getElementById("right").classList.add("ant-col-0")
+
     await document.getElementById("mainMap").classList.remove("ant-col-18")
     await document.getElementById("mainMap").classList.add("ant-col-14")
-    // document.getElementById("one").appendChild(document.getElementById("mapVision"))
-    await document.getElementById("mapVision").classList.remove("hidden")
     await this.props.showMap()
-    await this.state.choosePatches.map((item, index) => { document.getElementById("childCard" + index).classList.add("hidden") })
-    // this.setState({ hide: false, showMap: true })
-    this.setState({ show: 2 })
+    // await this.state.choosePatches.map((item, index) => { document.getElementById("childCard" + index).classList.add("hidden") })
   }
-  deleteImg = (index) => {
-    var tags = this.state.choosePatches
+  deleteImg = async (index) => {
+    var tags = this.state.choosePatches;
+    tags = tags.filter(item => item != index);
 
-    tags = tags.filter(item => item != index)
-
-    setTimeout(() => {
-      this.setState({
-        choosePatches: tags
-      })
-      this.props.changeDeletePatches(tags);
-    }, 0);
+    await this.setState({
+      choosePatches: tags
+    })
+    this.props.changeDeletePatches(tags);
   }
 
   render() {
     return (
       <>
         <Card bordered={false} hoverable={true}>
-          <Row gutter={[10, 10]}>
+          {
+            this.props.mapValid ? null 
+            : <Row gutter={[10, 10]}>
 
-            <Col span={24} style={{ height: '68vh' }}>
+                <Col span={24} style={{ height: '68vh' }}>
 
-              {
-                <>
-                  <Title level={4}>
-                    {/* <Button type="text" icon={<ArrowLeftOutlined />} onClick={this.toBase}></Button> */}
-                    &nbsp;Selected 6 Grids
-                  </Title>
                   {
-                    this.state.choosePatches.length === 0 ? <Empty style={{ marginTop: "30vh" }} /> :
-                      this.state.choosePatches.map((item, index) => {
+                    <>
+                      <Title level={4}>
+                        {/* <Button type="text" icon={<ArrowLeftOutlined />} onClick={this.toBase}></Button> */}
+                        &nbsp;Selected 6 Grids
+                      </Title>
+                      {
+                        this.state.choosePatches.length === 0 ? <Empty style={{ marginTop: "30vh" }} /> :
+                          this.state.choosePatches.map((item, index) => {
 
-                        return <Card.Grid className='childCard' id={'childCard' + index} key={'childCard' + index} style={gridStyle} >
-                          <Row gutter={[5, 10]}>
-                            <Col span={24}>
-                              <Image
-                                width="75% "
-                                src={"./data/1/v_" + item % 40 + "_" + item % 40 + ".png"}
-                              />
-                            </Col>
-                            <Col span={12}>
-                              <Button type='primary' onClick={this.chooseImg} ghost>Check</Button></Col>
-                            <Col span={12}>
-                              <Button type='danger' onClick={() => this.deleteImg(item)} ghost>Delete</Button>
-                            </Col>
+                            return <Card.Grid className='childCard' id={'childCard' + index} key={'childCard' + index}  >
+                              <Row gutter={[5, 10]}>
+                                <Col span={24}>
+                                  <Image
+                                    className='grid-img'
+                                    src={"./data/test.png"}
+                                  />
+                                </Col>
+                                <Col span={12}>
+                                  <Button type='primary' onClick={this.chooseImg} ghost>Check</Button></Col>
+                                <Col span={12}>
+                                  <Button type='danger' onClick={() => this.deleteImg(item)} ghost>Delete</Button>
+                                </Col>
+                              </Row>
+                            </Card.Grid>
 
+                          })
+                      }</>
+                  }
+                </Col>
+                <Col span={24} className="line-chart-box">
+                  <ReactECharts className='line-chart' style={{ height: "20vh", width: "22vw" }} option={this.state.optionLine} />
+                </Col>
 
-                          </Row>
+              </Row>
+          }
 
-                        </Card.Grid>
-
-                      })
-                  }</>
-              }
-              {/* {
-                this.state.show === 2 ?  <p>123</p>: null
-                // <MapVision hide={this.state.show != 2} back={this.getBack} load={this.setLoading} />
-              } */}
-            </Col>
-            <Col span={24} style={{ borderTop: '3px solid rgba(240, 242, 245)' }}>
-              <ReactECharts style={{ height: "20vh", width: "22vw" }} option={this.state.optionLine} />
-            </Col>
-
-          </Row>
         </Card>
       </>
     )

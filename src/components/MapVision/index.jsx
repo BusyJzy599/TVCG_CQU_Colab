@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-05-14 09:45:54
  * @LastEditors: JZY
- * @LastEditTime: 2022-08-28 18:40:34
+ * @LastEditTime: 2022-10-04 11:40:51
  * @FilePath: /visual/src/components/MapVision/index.jsx
  */
 import React, { Component } from 'react'
@@ -14,8 +14,8 @@ const { Option } = Select;
 const { Title, Text } = Typography;
 const xScale = d3.scaleLinear()
 const yScale = d3.scaleLinear()
-const maxValue = 40     // 缩放大小
-const lineWidth = 0.4     // 分割线宽度
+const maxValue = 20     // 缩放大小
+const lineWidth = 0.2     // 分割线宽度
 const rows = 73         //每行个数
 const cols = 57         //每列个数
 const imgSize = 10      //图片大小
@@ -165,14 +165,11 @@ export default class MapVision extends Component {
     };
 
     getBack = () => {
-
-        document.getElementById("BarChart").classList.remove("hidden")
-        document.getElementById("ConfusionChart").classList.remove("hidden")
         document.getElementById("right").classList.remove("ant-col-0")
         document.getElementById("right").classList.add("ant-col-6")
         document.getElementById("mainMap").classList.remove("ant-col-14")
         document.getElementById("mainMap").classList.add("ant-col-18")
-        document.getElementById("mapVision").classList.add("hidden")
+        this.props.closeMap()
     }
     setIndex = (x, y) => {
         this.setState({
@@ -232,10 +229,9 @@ export default class MapVision extends Component {
     }
 
     changeGridSize = async (e) => {
-        await this.setState({
+        this.setState({
             gridSize: e.target.value
         });
-
         this.drawChart()
     }
     setConfirmLoading = (args) => {
@@ -261,9 +257,9 @@ export default class MapVision extends Component {
     };
     componentDidMount = async () => {
         await this.props.onChildEvent(this);
-        await this.drawChart();
+        this.drawChart();
         this.setState({
-            load: false
+            load:false
         })
 
     }
@@ -304,7 +300,7 @@ export default class MapVision extends Component {
         // 绘制网格
         const grid = g => g
             .attr("stroke", "blue")
-            .attr("stroke-opacity",0.5)
+            .attr("stroke-opacity", 0.5)
             .attr("stroke-width", lineWidth)
             .call(g => g.append("g")
                 .selectAll("line")
@@ -325,7 +321,7 @@ export default class MapVision extends Component {
         const imgs = mainGroup.selectAll("image").data([0]);
         for (var i = 0; i < rows; i++) {
             for (var j = 0; j < cols; j++) {
-                var path = "./data/2/x" + 5 * i + 1 + "_y" + 5 * j + 1 + "_class.png"
+                var path = "./data/test_data/x" + 5 * i + 1 + "_y" + 5 * j + 1 + "_class.png"
                 d3.image(path).then(function (img) {
                 }).catch(function (error) {
                     path = "./data/default.png"
@@ -357,7 +353,6 @@ export default class MapVision extends Component {
                     var margin = lineWidth;
                 }
                 d3.csv("./data/validIndex.csv").then(function (data) {
-                    console.log("heatMapFunciton")
                     data.forEach(e => {
                         mainGroup.append('g')
                             .append('rect') //添加类型
@@ -378,7 +373,9 @@ export default class MapVision extends Component {
 
         }
         function zoomed(event) {
-            var margin = lineWidth / event.transform.k
+            var margin = lineWidth
+            if (event.transform.k > 25)
+                margin = lineWidth * event.transform.k / 20
             mainGroup.selectAll("line").remove()
             mainGroup.selectAll("image").remove()
             const grid = g => g
@@ -402,7 +399,7 @@ export default class MapVision extends Component {
             const imgs = mainGroup.selectAll("image").data([0]);
             for (var i = 0; i < rows; i++) {
                 for (var j = 0; j < cols; j++) {
-                    var path = "./data/2/x" + 5 * i + 1 + "_y" + 5 * j + 1 + "_class.png"
+                    var path = "./data/test_data/x" + 5 * i + 1 + "_y" + 5 * j + 1 + "_class.png"
 
                     d3.image(path).then(function (img) {
                     }).catch(function (error) {
@@ -464,7 +461,7 @@ export default class MapVision extends Component {
     render() {
         return (
             <>
-                <Spin size="large" spinning={this.state.load}>
+                <Spin id="loading" size="large" spinning={this.state.load}>
                     <Card
                         bordered={false}
                         hoverable={true}
@@ -533,7 +530,7 @@ export default class MapVision extends Component {
                                     </Col> */}
 
                                     <Col span={18}>
-                                        <Row>
+                                        <Row gutter={[10, 10]}>
                                             <Col span={24}>
                                                 <Text type="secondary"><AppstoreOutlined />&nbsp;Grid Size:</Text>
                                                 <Radio.Group onChange={this.changeGridSize} value={this.state.gridSize}>

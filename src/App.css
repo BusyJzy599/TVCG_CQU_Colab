@@ -7,6 +7,23 @@ html {
   width: 100%;
 }
 
+.grid-style{
+  text-align: center;
+  display: block;
+  height: 21vh;
+  width: 50%;
+}
+.grid-img{
+  height: 14vh;
+  width: 6vw;
+}
+.line-chart-box{
+  border-top: 3px solid rgba(240, 242, 245);
+}
+.slider-sankey{
+  width: 56vw;
+  margin-left: 15px
+}
 
 .ant-page-header {
   background: #042950;
@@ -118,9 +135,10 @@ text.text-hover {
 }
 
 #scatterTip {
+  left: -13vw ;
   position: absolute;
   width: 28.5vh;
-  height: auto;
+  height: 60vh;
   padding: 6px;
   background-color: rgba(246, 238, 238, 0.9);
   border-radius: 5px;
@@ -212,12 +230,16 @@ text.text-hover {
 
 .childCard {
   padding: 10px;
+  text-align: center;
+  display: block;
+  height: 21vh;
+  width: 50%;
 }
 
 .headerModule {
   background: #042950;
-  height: 8vh;
-  padding-left: 20px;
+  height: 7vh;
+  padding-left: 1vw;
 }
 
 .site-layout {
@@ -240,7 +262,7 @@ text.text-hover {
 
 .scatterChart {
   height: 68vh;
-  width: 57vw;
+  width: 58vw;
 }
 
 #ConfusionChart {

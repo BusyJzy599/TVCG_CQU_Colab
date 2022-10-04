@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-07-21 10:17:01
  * @LastEditors: JZY
- * @LastEditTime: 2022-08-28 18:37:28
+ * @LastEditTime: 2022-10-04 11:40:28
  * @FilePath: /visual/src/components/CoreModule/ScatterModel/index.jsx
  */
 
@@ -13,8 +13,6 @@ export default class ScatterModel extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            chooseClass: "LUSC",
-            scatter: "scatterLUSC",
             patcheId: -1,
             imgId: -1,
             selectedPatch: -1,
@@ -37,35 +35,22 @@ export default class ScatterModel extends Component {
     handleBarChildEvent = (ref) => {
         this.barChildRef = ref
     }
-    onChange = async (e) => {
-        await this.setState({
-            chooseClass: e.target.value,
-            scatter: "scatter" + e.target.value,
-            selectedPatch: -1
-        }
-        );
-        await this.drawChart(e.target.value);
-        this.childRef.changeScatter()
 
-    };
     changeBarRange = (id) => {
         this.barChildRef.changeBarRange(id)
     }
-    changeChoosePatches = (p) => {
+    changeChoosePatches = async (p) => {
         this.setState({
             choosePatches: p
         });
-        setTimeout(() => {
-            this.props.changeChoosePatches(p);
-        }, 0);
+        this.props.changeChoosePatches(p);
     }
     render() {
         return (
             <>
                 <Row gutter={5}>
-                    <Col span={19} >
+                    <Col span={19}>
                         <Scatter
-                            id={this.state.scatter}
                             changeBarRange={this.changeBarRange}
                             onChildEvent={this.handleScatterChildEvent}
                             ref={this.scatterChildRef}
@@ -74,11 +59,14 @@ export default class ScatterModel extends Component {
                     </Col>
 
                     <Col span={5} id="BarChart" >
-                            <Bar
+                        {
+                            this.props.mapValid ? null : <Bar
                                 changeChoosePatches={this.changeChoosePatches}
                                 choosePatches={this.state.choosePatches}
                                 onChildEvent={this.handleBarChildEvent}
                                 ref={this.barChildRef} />
+                        }
+
                     </Col>
 
 

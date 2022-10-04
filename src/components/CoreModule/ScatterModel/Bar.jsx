@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-07-21 11:08:42
  * @LastEditors: JZY
- * @LastEditTime: 2022-08-28 18:07:59
+ * @LastEditTime: 2022-10-03 21:44:17
  * @FilePath: /visual/src/components/CoreModule/ScatterModel/Bar.jsx
  */
 import React, { Component } from 'react'
@@ -24,43 +24,57 @@ export default class Bar extends Component {
             choosePatches: props.choosePatches
         }
     }
+    componentDidMount = () => {
+        this.props.onChildEvent(this);
+        this.drawChart(0, -1);
+    }
 
     changeDeletePatches = (p) => {
         this.setState({
             choosePatches: p
         });
     }
-    componentDidMount = () => {
-        this.props.onChildEvent(this);
-        this.drawChart(0, 100);
-    }
 
+    changeBarRange = (id) => {
+
+        this.drawChart(id, id);
+    }
+    selectBar = {
+        'click': async (e) => {
+            const newTags = this.state.choosePatches.filter((tag) => tag !== e.dataIndex);
+            if (newTags.length < 6) {
+                await newTags.push(e.dataIndex)
+                await this.setState({
+                    choosePatches: newTags
+                })
+            } else {
+                await message.error('The selected image has reached the limitation!');
+            }
+            this.props.changeChoosePatches(newTags);
+        }
+    }
     drawChart = (start, end) => {
 
         var index = [];
+        var patchNum = [];
         var O2u = [];
         var Fine = [];
-        var Grades = [];
-        d3.csv("./data/data_heatmap.csv").then(data => {
-            for (let i = 1; i <= 100; i++)
-                index.push(i)
+        var Grades0 = [];
+        var Grades1 = []
+        var Grades2 = [];
 
-            for (let i = 0; i < 100; i++) {
-                var o2u = 0;
-                var fine = 0;
-                var grade = 0;
-                for (let j = 0; j < 5000; j++) {
-                    if (data[j]['img_id'] == i) {
-                        o2u += parseFloat(data[j]["o2u"]);
-                        fine += parseFloat(data[j]["fine"]);
-                        grade += parseInt(data[j]["grade"]) + 1;
-                    }
-
-                }
-                O2u.push(o2u / 100);
-                Fine.push(fine / 100);
-                Grades.push(grade / 300);
-            }
+        d3.csv(process.env.REACT_APP_WSI_DATA).then(data => {
+            data.forEach((item) => {
+                index.push(parseInt(item['img_id']))
+                patchNum.push(item['patch_num'])
+                Grades0.push(item['grades0'])
+                Grades1.push(item['grades1'])
+                Grades2.push(item['grades2'])
+                O2u.push(item['o2us'])
+                Fine.push(item['fines'])
+            })
+            if (end == -1)
+                end = index.length - 1
             this.setState({
                 option: {
                     title: {
@@ -92,14 +106,9 @@ export default class Bar extends Component {
                             type: 'slider',
                             yAxisIndex: 0,
                             left: 0,
-                            start: start,
-                            end: end
+                            startValue: start,
+                            endValue: end
                         },
-                        // {
-                        //     type: 'slider',
-                        //     xAxisIndex: 0,
-                        //     bottom:5
-                        // }
                     ],
                     yAxis: {
                         data: index,
@@ -127,23 +136,41 @@ export default class Bar extends Component {
                             name: 'Mean O2U Score',
                             type: 'bar',
                             data: O2u,
-                            // Set `large` for large data amount
                             large: true
                         },
                         {
                             name: 'Mean Fine Score',
                             type: 'bar',
                             data: Fine,
-                            // Set `large` for large data amount
                             large: true
                         },
                         {
-                            name: 'Mean CC Grade',
+                            name: 'clear rate',
                             type: 'bar',
-                            data: Grades,
-                            // Set `large` for large data amount
-                            large: true
-                        }
+                            stack: 'CC',
+                            emphasis: {
+                                focus: 'series'
+                            },
+                            data: Grades0
+                        },
+                        {
+                            name: 'noise rate',
+                            type: 'bar',
+                            stack: 'CC',
+                            emphasis: {
+                                focus: 'series'
+                            },
+                            data: Grades1
+                        },
+                        {
+                            name: 'high noise rate',
+                            type: 'bar',
+                            stack: 'CC',
+                            emphasis: {
+                                focus: 'series'
+                            },
+                            data: Grades2
+                        },
 
                     ]
                 },
@@ -153,34 +180,7 @@ export default class Bar extends Component {
 
     }
 
-    changeBarRange = (id) => {
-        this.drawChart(id, id);
-    }
-    selectBar = {
-        'click': async (e) => {
 
-            const newTags = this.state.choosePatches.filter((tag) => tag !== e.dataIndex);
-            if (newTags.length < 6) {
-                await newTags.push(e.dataIndex)
-                await this.setState({
-                    choosePatches: newTags
-                })
-            } else {
-                await message.error('The selected image has reached the limitation!');
-            }
-            this.props.changeChoosePatches(newTags);
-        }
-    }
-
-    // handleClose = (removedTag) => {
-    //     const newTags = this.state.selectPatches.filter((tag) => tag !== removedTag);
-    //     this.setState({
-    //         selectPatches: newTags
-    //     })
-    //     setTimeout(() => {
-    //         this.props.getSelectPatches(this.state.selectPatches);
-    //     }, 0);
-    // };
     render() {
         return (
             <>

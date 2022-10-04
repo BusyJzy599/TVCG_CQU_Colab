@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-04-17 18:26:37
  * @LastEditors: JZY
- * @LastEditTime: 2022-08-28 18:05:21
+ * @LastEditTime: 2022-10-04 11:37:48
  * @FilePath: /visual/src/components/CoreModule/index.jsx
  */
 import React, { Component } from 'react'
@@ -13,8 +13,6 @@ export default class CoreModule extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            // activeTabKey: "Map",
-            showIndex: 0,
             choosePatches: props.choosePatches
         }
 
@@ -27,7 +25,6 @@ export default class CoreModule extends Component {
         this.setState({
             choosePatches: p
         });
-        console.log("Core")
         this.scatterModelRef.changeDeletePatches(p)
     }
     changeChoosePatches = async (p) => {
@@ -53,12 +50,10 @@ export default class CoreModule extends Component {
                                 ref={this.scatterModelRef}
                                 changeChoosePatches={this.changeChoosePatches}
                                 choosePatches={this.state.choosePatches}
-                                showIndex={this.state.showIndex}
-                                Patches={this.state.selectedPatches}
-                                getSelectPatches={this.getSelectPatches} />
+                                mapValid={this.props.mapValid} />
                         </Col>
                         <Col className='row_2' span={24}>
-                            <SankeyModel />
+                            <SankeyModel mapValid={this.props.mapValid} />
                         </Col>
                     </Row>
                 </Card>

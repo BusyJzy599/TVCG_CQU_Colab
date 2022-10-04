@@ -1,7 +1,7 @@
 /*
  * @Date: 2022-04-17 17:39:09
  * @LastEditors: JZY
- * @LastEditTime: 2022-08-28 18:18:01
+ * @LastEditTime: 2022-10-04 11:34:12
  * @FilePath: /visual/src/App.jsx
  */
 import './App.css';
@@ -19,15 +19,15 @@ import RightModule from './components/RightModule'
 import TopModule from './components/TopModule';
 
 
-const { Content, Sider, Header } = Layout;
+const { Content, Header } = Layout;
 
 export default class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       choosePatches: [],
+      mapValid: false
     }
-    this.RightModule = React.createRef();
   }
   changeDeletePatches = (p) => {
     this.setState({
@@ -39,19 +39,29 @@ export default class App extends Component {
     this.setState({
       choosePatches: p
     });
-    this.RightModule.current.changeChoosePatches(p);
+    this.RightModule.changeChoosePatches(p);
   }
-  showMap =  async() => {
-    await this.mapChildRef.setState({
-      load:true
-    });
-    this.mapChildRef.componentDidMount();
+  showMap = () => {
+    // this.mapChildRef.componentDidMount();
+    this.setState({
+      mapValid: true
+    })
   }
+  closeMap = () => {
+    this.setState({
+      mapValid: false
+    })
+
+  }
+
   handleMapChildEvent = (ref) => {
     this.mapChildRef = ref
   }
   handleCoreModuleEvent = (ref) => {
     this.coreModuleRef = ref
+  }
+  handleRightChildEvent = (ref) => {
+    this.RightModule = ref
   }
   render() {
     return (
@@ -67,23 +77,33 @@ export default class App extends Component {
                   <CoreModule
                     onChildEvent={this.handleCoreModuleEvent}
                     ref={this.coreModuleRef}
+
                     changeChoosePatches={this.changeChoosePatches}
                     choosePatches={this.state.choosePatches}
-                    Patches={this.state.selectedPatches}
+                    mapValid={this.state.mapValid}
                   />
                 </Col>
                 <Col span={6} id="right">
                   <RightModule
-                    showMap={this.showMap}
+                    onChildEvent={this.handleRightChildEvent}
                     ref={this.RightModule}
+
+                    showMap={this.showMap}
                     changeDeletePatches={this.changeDeletePatches}
                     choosePatches={this.state.choosePatches}
+                    mapValid={this.state.mapValid}
                   />
                 </Col>
-                <Col span={10} className="hidden" id="mapVision">
-                  <MapVision
-                    onChildEvent={this.handleMapChildEvent}
-                    ref={this.mapChildRef} />
+                <Col span={10} id="mapVision">
+                  {
+                    this.state.mapValid ?
+                      <MapVision
+                        onChildEvent={this.handleMapChildEvent}
+                        ref={this.mapChildRef}
+                        closeMap={this.closeMap}
+                      /> : null
+                  }
+
                 </Col>
               </Row>
             </Space>
